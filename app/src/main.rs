@@ -1,12 +1,10 @@
-use bytes::Bytes;
 use std::env;
 use std::io::Write;
 use std::net::Ipv4Addr;
 use std::process::{Command, Stdio};
-use warp::{Filter, Rejection};
+use warp::Filter;
 
 pub fn image_process(buf: &Vec<u8>) -> String {
-    println!("buf: {:?}", buf.len());
     let mut child = Command::new("./lib/wasmedge-tensorflow-lite")
         .arg("./lib/classify.so")
         .stdin(Stdio::piped())
@@ -20,7 +18,6 @@ pub fn image_process(buf: &Vec<u8>) -> String {
     }
     let output = child.wait_with_output().expect("failed to wait on child");
     let ans = String::from_utf8_lossy(&output.stdout);
-    println!("ans: {:?}", ans);
     ans.to_string()
 }
 
@@ -61,15 +58,6 @@ pub async fn run_server(port: u16) {
     let routes = routes.with(log);
     println!("listen to : {} ...", port);
     warp::serve(routes).run((Ipv4Addr::UNSPECIFIED, port)).await
-}
-
-fn log_body() -> impl Filter<Extract = (), Error = Rejection> + Copy {
-    warp::body::bytes()
-        .map(|b: Bytes| {
-            let v: Vec<u8> = b.iter().map(|&x| x).collect();
-            println!("result: {}", v.len());
-        })
-        .untuple_one()
 }
 
 async fn handle_rejection(
