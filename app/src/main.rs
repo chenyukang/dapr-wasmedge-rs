@@ -1,18 +1,15 @@
 use bytes::Bytes;
-use serde::{Deserialize, Serialize};
 use std::env;
 use std::net::Ipv4Addr;
 use warp::{Filter, Rejection};
 use wasmedge_tensorflow_interface;
 
-use std::io::{self, Read};
-
 pub fn image_process(buf: &Vec<u8>) -> String {
     println!("buf: {:?}", buf);
     return String::from("ok");
     let model_data: &[u8] =
-        include_bytes!(r".\models\mobilenet_v1_1.0_224\mobilenet_v1_1.0_224_quant.tflite");
-    let labels = include_str!(r".\models\mobilenet_v1_1.0_224\labels_mobilenet_quant_v1_224.txt");
+        include_bytes!(r"./models/mobilenet_v1_1.0_224/mobilenet_v1_1.0_224_quant.tflite");
+    let labels = include_str!(r"./models/mobilenet_v1_1.0_224/labels_mobilenet_quant_v1_224.txt");
 
     let flat_img = wasmedge_tensorflow_interface::load_jpg_image_to_rgb8(&buf, 224, 224);
 
